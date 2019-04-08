@@ -115,3 +115,10 @@ func Run(cmdline string) int {
 	log.Println("END   ", cmdline)
 	return 0
 }
+
+func Daemon(cmdline string, timeout time.Duration) int {
+	for {
+		Run(cmdline)
+		time.Sleep(timeout)
+	}
+}
