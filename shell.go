@@ -18,7 +18,7 @@ func Script(cmds string) int {
 		line = strings.TrimSpace(line) // this is like 'chomp' in perl
 		fmt.Println("LINE:", line)
 		time.Sleep(1)
-		shell(line)
+		Run(line)
 	}
 	return 0
 }
