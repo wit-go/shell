@@ -10,6 +10,9 @@ import "bufio"
 import "github.com/davecgh/go-spew/spew"
 import "github.com/svent/go-nbreader"
 
+var shellStdout *os.File
+var shellStderr *os.File
+
 func Script(cmds string) int {
 	// split on new lines (while we are at it, handle stupid windows text files
 	lines := strings.Split(strings.Replace(cmds, "\r\n", "\n", -1), "\n")
@@ -21,6 +24,14 @@ func Script(cmds string) int {
 		Run(line)
 	}
 	return 0
+}
+
+func SetStdout(newout *os.File) {
+	shellStdout = newout
+}
+
+func SetStderr(newerr *os.File) {
+	shellStderr = newerr
 }
 
 func Run(cmdline string) int {
@@ -42,16 +53,23 @@ func Run(cmdline string) int {
 	}
 
 	process := exec.Command(cmdArgs[0], cmdArgs[1:len(cmdArgs)]...)
-	stdout, _ := process.StdoutPipe()
-	stderr, _ := process.StderrPipe()
+	pstdout, _ := process.StdoutPipe()
+	pstderr, _ := process.StderrPipe()
+
+	spew.Dump(pstdout)
+
 	process.Start()
 
-	f := bufio.NewWriter(os.Stdout)
+	if (shellStdout == nil) {
+		shellStdout = os.Stdout
+	}
 
-	newreader := bufio.NewReader(stdout)
+	f := bufio.NewWriter(shellStdout)
+
+	newreader := bufio.NewReader(pstdout)
 	nbr := nbreader.NewNBReader(newreader, 1024)
 
-	newerrreader := bufio.NewReader(stderr)
+	newerrreader := bufio.NewReader(pstderr)
 	nbrerr := nbreader.NewNBReader(newerrreader, 1024)
 
 	for {
