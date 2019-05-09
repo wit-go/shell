@@ -72,25 +72,42 @@ func Run(cmdline string) int {
 	newerrreader := bufio.NewReader(pstderr)
 	nbrerr := nbreader.NewNBReader(newerrreader, 1024)
 
+	totalCount := 0
+
 	for {
 		time.Sleep(2 * time.Millisecond)   // only check the buffer 500 times a second
 		// log.Println("sleep done")
 
-		oneByte := make([]byte, 1024)
-		count, err := nbr.Read(oneByte)
+		// tight loop that reads 1K at a time until buffer is empty
+		for {
+			oneByte := make([]byte, 1024)
+			count, err := nbr.Read(oneByte)
+			totalCount += count
 
-		if (err != nil) {
-			// log.Println("Read() count = ", count, "err = ", err)
-			oneByte = make([]byte, 1024)
-			count, err = nbr.Read(oneByte)
+			if (err != nil) {
+				// log.Println("Read() count = ", count, "err = ", err)
+				oneByte = make([]byte, 1024)
+				count, err = nbr.Read(oneByte)
+				f.Write([]byte(string(oneByte)))
+				f.Flush()
+			}
 			f.Write([]byte(string(oneByte)))
 			f.Flush()
+			if (count == 0) {
+				break
+			}
 		}
-		f.Write([]byte(string(oneByte)))
-		f.Flush()
 
-		oneByte = make([]byte, 1024)
-		count, err = nbrerr.Read(oneByte)
+		if (totalCount != 0) {
+			log.Println("totalCount = ", totalCount)
+		}
+
+		//
+		// HANDLE STDERR
+		// HANDLE STDERR
+		//
+		oneByte := make([]byte, 1024)
+		count, err := nbrerr.Read(oneByte)
 
 		if (err != nil) {
 			oneByte = make([]byte, 1024)
@@ -99,8 +116,8 @@ func Run(cmdline string) int {
 			f.Flush()
 
 			log.Println("Read() count = ", count, "err = ", err)
-			spew.Dump(process.Process)
-			spew.Dump(process.ProcessState)
+			// spew.Dump(process.Process)
+			// spew.Dump(process.ProcessState)
 			err := process.Wait()
 			if err != nil {
 				spew.Dump(err.(*exec.ExitError))
