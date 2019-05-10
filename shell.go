@@ -90,8 +90,6 @@ func Run(cmdline string) int {
 	newreader := bufio.NewReader(pstdout)
 	nbr := nbreader.NewNBReader(newreader, 1024)
 
-	// nbrerr := nbreader.NewNBReader(newerrreader, 1024)
-
 	tmp := bufio.NewReader(pstderr)
 	go NonBlockingReader(tmp, shellStderr)
 
@@ -113,15 +111,19 @@ func Run(cmdline string) int {
 				log.Println("Read() count = ", count, "err = ", err)
 				oneByte = make([]byte, 1024)
 				count, err = nbr.Read(oneByte)
-				f.Write([]byte(string(oneByte)))
+				log.Println("STDOUT: count = ", count)
+				f.Write(oneByte[0:count])
 				f.Flush()
 				empty = true
 				dead = true
 			}
-			f.Write([]byte(string(oneByte)))
-			f.Flush()
+			// f.Write([]byte(string(oneByte)))
 			if (count == 0) {
 				empty = true
+			} else {
+				log.Println("STDOUT: count = ", count)
+				f.Write(oneByte[0:count])
+				f.Flush()
 			}
 		}
 
@@ -180,8 +182,10 @@ func NonBlockingReader(buffReader *bufio.Reader, writeFileHandle *os.File) {
 					log.Println("STDERR: totalCount = ", totalCount)
 					totalCount = 0
 				}
+			} else {
+				log.Println("STDERR: count = ", count)
+				writeFileHandle.Write(oneByte[0:count])
 			}
-			writeFileHandle.Write([]byte(string(oneByte)))
 		}
 	}
 }
