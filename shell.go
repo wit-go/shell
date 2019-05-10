@@ -1,7 +1,6 @@
 package shell
 
-import "fmt"
-import "log"
+// import "log"
 import "strings"
 import "time"
 import "os"
@@ -10,8 +9,13 @@ import "bufio"
 import "github.com/davecgh/go-spew/spew"
 import "github.com/svent/go-nbreader"
 
+import log "github.com/sirupsen/logrus"
+// import "github.com/wercker/journalhook"
+
 var shellStdout *os.File
 var shellStderr *os.File
+
+var spewOn bool = false
 
 func Script(cmds string) int {
 	// split on new lines (while we are at it, handle stupid windows text files
@@ -19,11 +23,21 @@ func Script(cmds string) int {
 
 	for _, line := range lines {
 		line = strings.TrimSpace(line) // this is like 'chomp' in perl
-		fmt.Println("LINE:", line)
+		log.Println("LINE:", line)
 		time.Sleep(1)
 		Run(line)
 	}
 	return 0
+}
+
+/*
+func UseJournalctl() {
+	journalhook.Enable()
+}
+*/
+
+func SpewOn() {
+	spewOn = true
 }
 
 func SetStdout(newout *os.File) {
@@ -56,7 +70,9 @@ func Run(cmdline string) int {
 	pstdout, _ := process.StdoutPipe()
 	pstderr, _ := process.StderrPipe()
 
-	spew.Dump(pstdout)
+	if (spewOn) {
+		spew.Dump(pstdout)
+	}
 
 	process.Start()
 
@@ -120,8 +136,10 @@ func Run(cmdline string) int {
 			// spew.Dump(process.ProcessState)
 			err := process.Wait()
 			if err != nil {
-				spew.Dump(err.(*exec.ExitError))
-				spew.Dump(process.ProcessState)
+				if (spewOn) {
+					spew.Dump(err.(*exec.ExitError))
+					spew.Dump(process.ProcessState)
+				}
 				stuff := err.(*exec.ExitError)
 				log.Println("ERROR ", stuff)
 				log.Println("END   ", cmdline)
@@ -140,8 +158,10 @@ func Run(cmdline string) int {
 	err := process.Wait()
 
 	if err != nil {
-		spew.Dump(err.(*exec.ExitError))
-		spew.Dump(process.ProcessState)
+		if (spewOn) {
+			spew.Dump(err.(*exec.ExitError))
+			spew.Dump(process.ProcessState)
+		}
 		stuff := err.(*exec.ExitError)
 		log.Println("ERROR ", stuff)
 		log.Println("END   ", cmdline)
