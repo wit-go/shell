@@ -9,7 +9,7 @@ import "os"
 
 // import "github.com/davecgh/go-spew/spew"
 
-import "git.wit.com/jcarr/shell"
+import "git.wit.com/wit/shell"
 
 func main() {
 
