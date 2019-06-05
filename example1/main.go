@@ -12,7 +12,6 @@ import "os"
 import "git.wit.com/wit/shell"
 
 func main() {
-
 	shell.Run("ls /tmp")
 
 	shell.Run("ping -c 3 localhost")

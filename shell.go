@@ -1,11 +1,14 @@
 package shell
 
-// import "log"
+import "fmt"
 import "strings"
 import "time"
 import "os"
 import "os/exec"
 import "bufio"
+import "bytes"
+import "io"
+
 import "github.com/davecgh/go-spew/spew"
 import "github.com/svent/go-nbreader"
 
@@ -17,6 +20,8 @@ var shellStderr *os.File
 
 var spewOn bool = false
 var msecDelay int = 20	// number of milliseconds to delay between reads with no data
+
+var buf bytes.Buffer
 
 func Script(cmds string) int {
 	// split on new lines (while we are at it, handle stupid windows text files
@@ -53,14 +58,26 @@ func SetStderr(newerr *os.File) {
 	shellStderr = newerr
 }
 
-func Run(cmdline string) int {
+/*
+func Capture(cmdline string) (int, string) {
+	val, _, _ := Run(cmdline)
+
+	if (val != 0) {
+		log.Println("shell.Capture() ERROR")
+	}
+
+	return val, buf.String()
+}
+*/
+
+func Run(cmdline string) (int, string, error) {
 	log.Println("START " + cmdline)
 
 	cmd := strings.TrimSpace(cmdline) // this is like 'chomp' in perl
 	cmdArgs := strings.Fields(cmd)
 	if (len(cmdArgs) == 0) {
 		log.Println("END   ", cmd)
-		return 0 // nothing to do
+		return 0, "", fmt.Errorf("") // nothing to do
 	}
 	if (cmdArgs[0] == "cd") {
 		if (len(cmdArgs) > 1) {
@@ -68,7 +85,7 @@ func Run(cmdline string) int {
 			os.Chdir(cmdArgs[1])
 		}
 		log.Println("END   ", cmd)
-		return 0 // nothing to do
+		return 0, "", fmt.Errorf("") // nothing to do
 	}
 
 	process := exec.Command(cmdArgs[0], cmdArgs[1:len(cmdArgs)]...)
@@ -122,6 +139,7 @@ func Run(cmdline string) int {
 				empty = true
 			} else {
 				log.Println("STDOUT: count = ", count)
+				io.WriteString(&buf, string(oneByte))
 				f.Write(oneByte[0:count])
 				f.Flush()
 			}
@@ -143,10 +161,14 @@ func Run(cmdline string) int {
 		stuff := err.(*exec.ExitError)
 		log.Println("ERROR ", stuff)
 		log.Println("END   ", cmdline)
-		return -1
+		return -1, "", err
 	}
-	log.Println("END   ", cmdline)
-	return 0
+	// log.Println("shell.Run() END buf =", buf)
+	// log.Println("shell.Run() END string(buf) =", string(buf))
+	// log.Println("shell.Run() END buf.String() =", buf.String())
+	// log.Println("shell.Run() END string(buf.Bytes()) =", string(buf.Bytes()))
+	log.Println("shell.Run() END   ", cmdline)
+	return 0, buf.String(), fmt.Errorf("") // nothing to do
 }
 
 func Daemon(cmdline string, timeout time.Duration) int {
