@@ -8,6 +8,7 @@ import "os/exec"
 import "bufio"
 import "bytes"
 import "io"
+// import "io/ioutil"
 
 import "github.com/davecgh/go-spew/spew"
 import "github.com/svent/go-nbreader"
@@ -21,7 +22,8 @@ var shellStderr *os.File
 var spewOn bool = false
 var msecDelay int = 20	// number of milliseconds to delay between reads with no data
 
-var buf bytes.Buffer
+var bytesBuffer bytes.Buffer
+var bytesSplice []byte
 
 func Script(cmds string) int {
 	// split on new lines (while we are at it, handle stupid windows text files
@@ -58,25 +60,13 @@ func SetStderr(newerr *os.File) {
 	shellStderr = newerr
 }
 
-/*
-func Capture(cmdline string) (int, string) {
-	val, _, _ := Run(cmdline)
-
-	if (val != 0) {
-		log.Println("shell.Capture() ERROR")
-	}
-
-	return val, buf.String()
-}
-*/
-
 func Run(cmdline string) (int, string, error) {
-	log.Println("START " + cmdline)
+	log.Println("shell.Run() START " + cmdline)
 
 	cmd := strings.TrimSpace(cmdline) // this is like 'chomp' in perl
 	cmdArgs := strings.Fields(cmd)
 	if (len(cmdArgs) == 0) {
-		log.Println("END   ", cmd)
+		log.Debug("END   ", cmd)
 		return 0, "", fmt.Errorf("") // nothing to do
 	}
 	if (cmdArgs[0] == "cd") {
@@ -84,7 +74,7 @@ func Run(cmdline string) (int, string, error) {
 			log.Println("os.Chdir()", cmd)
 			os.Chdir(cmdArgs[1])
 		}
-		log.Println("END   ", cmd)
+		log.Debug("END   ", cmd)
 		return 0, "", fmt.Errorf("") // nothing to do
 	}
 
@@ -125,10 +115,10 @@ func Run(cmdline string) (int, string, error) {
 			totalCount += count
 
 			if (err != nil) {
-				log.Println("Read() count = ", count, "err = ", err)
+				log.Debug("Read() count = ", count, "err = ", err)
 				oneByte = make([]byte, 1024)
 				count, err = nbr.Read(oneByte)
-				log.Println("STDOUT: count = ", count)
+				log.Debug("STDOUT: count = ", count)
 				f.Write(oneByte[0:count])
 				f.Flush()
 				empty = true
@@ -138,15 +128,15 @@ func Run(cmdline string) (int, string, error) {
 			if (count == 0) {
 				empty = true
 			} else {
-				log.Println("STDOUT: count = ", count)
-				io.WriteString(&buf, string(oneByte))
+				log.Debug("STDOUT: count = ", count)
+				io.WriteString(&bytesBuffer, string(oneByte))
 				f.Write(oneByte[0:count])
 				f.Flush()
 			}
 		}
 
 		if (totalCount != 0) {
-			log.Println("STDOUT: totalCount = ", totalCount)
+			log.Debug("STDOUT: totalCount = ", totalCount)
 			totalCount = 0
 		}
 	}
@@ -155,20 +145,27 @@ func Run(cmdline string) (int, string, error) {
 
 	if err != nil {
 		if (spewOn) {
-			spew.Dump(err.(*exec.ExitError))
+			// this panics: spew.Dump(err.(*exec.ExitError))
 			spew.Dump(process.ProcessState)
 		}
-		stuff := err.(*exec.ExitError)
-		log.Println("ERROR ", stuff)
-		log.Println("END   ", cmdline)
-		return -1, "", err
+		// stuff := err.(*exec.ExitError)
+		log.Debug("ERROR ", err.Error())
+		log.Debug("END   ", cmdline)
+		return -1, "", fmt.Errorf(err.Error())
 	}
-	// log.Println("shell.Run() END buf =", buf)
-	// log.Println("shell.Run() END string(buf) =", string(buf))
-	// log.Println("shell.Run() END buf.String() =", buf.String())
-	// log.Println("shell.Run() END string(buf.Bytes()) =", string(buf.Bytes()))
+
+	// log.Println("shell.Run() END buf =", bytesBuffer)
+	// convert this to a byte array and then trip NULLs
+	// WTF this copies nulls with b.String() is fucking insanly stupid
+	byteSlice := bytesBuffer.Bytes()
+	b := bytes.Trim(byteSlice, "\x00")
+
+	log.Debug("shell.Run() END b =", b)
+
+	// reset the bytesBuffer
+	bytesBuffer.Reset()
 	log.Println("shell.Run() END   ", cmdline)
-	return 0, buf.String(), fmt.Errorf("") // nothing to do
+	return 0, string(b), fmt.Errorf("") // nothing to do
 }
 
 func Daemon(cmdline string, timeout time.Duration) int {
@@ -194,18 +191,18 @@ func NonBlockingReader(buffReader *bufio.Reader, writeFileHandle *os.File) {
 			oneByte := make([]byte, 1024)
 			count, err := nbr.Read(oneByte)
 			if (err != nil) {
-				log.Println("count, err =", count, err)
+				log.Debug("count, err =", count, err)
 				return
 			}
 			totalCount += count
 			if (count == 0) {
 				time.Sleep(time.Duration(msecDelay) * time.Millisecond)   // without this delay this will peg the CPU
 				if (totalCount != 0) {
-					log.Println("STDERR: totalCount = ", totalCount)
+					log.Debug("STDERR: totalCount = ", totalCount)
 					totalCount = 0
 				}
 			} else {
-				log.Println("STDERR: count = ", count)
+				log.Debug("STDERR: count = ", count)
 				writeFileHandle.Write(oneByte[0:count])
 			}
 		}
