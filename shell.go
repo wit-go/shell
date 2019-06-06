@@ -76,14 +76,15 @@ func SetStderr(newerr *os.File) {
 
 // NOTE: this might cause problems:
 // always remove the newlines at the end ?
-func Run(cmdline string) (int, string, error) {
+func Run(cmdline string) string {
 	log.Println("shell.Run() START " + cmdline)
 
 	cmd := strings.TrimSpace(cmdline) // this is like 'chomp' in perl
 	cmdArgs := strings.Fields(cmd)
 	if (len(cmdArgs) == 0) {
+		callback(fmt.Errorf("cmdline == ''"), 0)
 		log.Debug("END   ", cmd)
-		return 0, "", fmt.Errorf("") // nothing to do
+		return "" // nothing to do
 	}
 	if (cmdArgs[0] == "cd") {
 		if (len(cmdArgs) > 1) {
@@ -91,7 +92,7 @@ func Run(cmdline string) (int, string, error) {
 			os.Chdir(cmdArgs[1])
 		}
 		log.Debug("END   ", cmd)
-		return 0, "", fmt.Errorf("") // nothing to do
+		return "" // nothing to do
 	}
 
 	process := exec.Command(cmdArgs[0], cmdArgs[1:len(cmdArgs)]...)
@@ -167,7 +168,9 @@ func Run(cmdline string) (int, string, error) {
 		// stuff := err.(*exec.ExitError)
 		log.Debug("ERROR ", err.Error())
 		log.Debug("END   ", cmdline)
-		return -1, "", fmt.Errorf(err.Error())
+		// return -1, "", fmt.Errorf(err.Error())
+		callback(fmt.Errorf(err.Error()), -1)
+		return ""
 	}
 
 	// log.Println("shell.Run() END buf =", bytesBuffer)
@@ -186,7 +189,9 @@ func Run(cmdline string) (int, string, error) {
 	tmp2 := string(b)
 	tmp2  = strings.TrimSuffix(tmp2, "\n")
 	log.Println("shell.Run() END   ", cmdline)
-	return 0, string(b), fmt.Errorf("") // nothing to do
+	log.Println("shell.Run() calling callback() :")
+	callback(fmt.Errorf("no error"), 0)
+	return string(b)
 }
 
 func Daemon(cmdline string, timeout time.Duration) int {
