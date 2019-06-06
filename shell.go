@@ -44,7 +44,7 @@ func Script(cmds string) int {
 	lines := strings.Split(strings.Replace(cmds, "\r\n", "\n", -1), "\n")
 
 	for _, line := range lines {
-		line = strings.TrimSpace(line) // this is like 'chomp' in perl
+		line = Chomp(line) // this is like 'chomp' in perl
 		log.Println("LINE:", line)
 		time.Sleep(1)
 		Run(line)
@@ -79,7 +79,7 @@ func SetStderr(newerr *os.File) {
 func Run(cmdline string) string {
 	log.Println("shell.Run() START " + cmdline)
 
-	cmd := strings.TrimSpace(cmdline) // this is like 'chomp' in perl
+	cmd := Chomp(cmdline) // this is like 'chomp' in perl
 	cmdArgs := strings.Fields(cmd)
 	if (len(cmdArgs) == 0) {
 		callback(fmt.Errorf("cmdline == ''"), 0)
@@ -191,7 +191,7 @@ func Run(cmdline string) string {
 	log.Println("shell.Run() END   ", cmdline)
 	log.Println("shell.Run() calling callback() :")
 	callback(fmt.Errorf("no error"), 0)
-	return string(b)
+	return Chomp(b)
 }
 
 func Daemon(cmdline string, timeout time.Duration) int {
