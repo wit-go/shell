@@ -29,10 +29,13 @@ var bytesSplice []byte
 
 func handleError(c interface{}, ret int) {
 	log.Println("shell.Run() Returned", ret)
+	if (callback != nil) {
+		callback(c, ret)
+	}
 }
 
 func init() {
-	callback = handleError
+	callback = nil
 }
 
 func InitCallback(f func(interface{}, int)) {
