@@ -16,6 +16,8 @@ import "github.com/svent/go-nbreader"
 import log "github.com/sirupsen/logrus"
 // import "github.com/wercker/journalhook"
 
+var callback func(interface{}, int)
+
 var shellStdout *os.File
 var shellStderr *os.File
 
@@ -24,6 +26,18 @@ var msecDelay int = 20	// number of milliseconds to delay between reads with no 
 
 var bytesBuffer bytes.Buffer
 var bytesSplice []byte
+
+func handleShell(c interface{}, ret int) {
+	log.Println("shell.Run() Returned", ret)
+}
+
+func init() {
+	callback = handleShell
+}
+
+func InitCallback(f func(interface{}, int)) {
+	callback = f
+}
 
 func Script(cmds string) int {
 	// split on new lines (while we are at it, handle stupid windows text files
@@ -60,6 +74,8 @@ func SetStderr(newerr *os.File) {
 	shellStderr = newerr
 }
 
+// NOTE: this might cause problems:
+// always remove the newlines at the end ?
 func Run(cmdline string) (int, string, error) {
 	log.Println("shell.Run() START " + cmdline)
 
@@ -164,6 +180,11 @@ func Run(cmdline string) (int, string, error) {
 
 	// reset the bytesBuffer
 	bytesBuffer.Reset()
+
+	// NOTE: this might cause problems:
+	// this removes the newlines at the end
+	tmp2 := string(b)
+	tmp2  = strings.TrimSuffix(tmp2, "\n")
 	log.Println("shell.Run() END   ", cmdline)
 	return 0, string(b), fmt.Errorf("") // nothing to do
 }
