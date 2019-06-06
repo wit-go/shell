@@ -27,12 +27,12 @@ var msecDelay int = 20	// number of milliseconds to delay between reads with no 
 var bytesBuffer bytes.Buffer
 var bytesSplice []byte
 
-func handleShell(c interface{}, ret int) {
+func handleError(c interface{}, ret int) {
 	log.Println("shell.Run() Returned", ret)
 }
 
 func init() {
-	callback = handleShell
+	callback = handleError
 }
 
 func InitCallback(f func(interface{}, int)) {
@@ -82,7 +82,7 @@ func Run(cmdline string) string {
 	cmd := Chomp(cmdline) // this is like 'chomp' in perl
 	cmdArgs := strings.Fields(cmd)
 	if (len(cmdArgs) == 0) {
-		callback(fmt.Errorf("cmdline == ''"), 0)
+		handleError(fmt.Errorf("cmdline == ''"), 0)
 		log.Debug("END   ", cmd)
 		return "" // nothing to do
 	}
@@ -91,6 +91,7 @@ func Run(cmdline string) string {
 			log.Println("os.Chdir()", cmd)
 			os.Chdir(cmdArgs[1])
 		}
+		handleError(nil, 0)
 		log.Debug("END   ", cmd)
 		return "" // nothing to do
 	}
@@ -169,7 +170,8 @@ func Run(cmdline string) string {
 		log.Debug("ERROR ", err.Error())
 		log.Debug("END   ", cmdline)
 		// return -1, "", fmt.Errorf(err.Error())
-		callback(fmt.Errorf(err.Error()), -1)
+		// handleError(fmt.Errorf(err.Error()), -1)
+		handleError(err, -1)
 		return ""
 	}
 
@@ -189,8 +191,8 @@ func Run(cmdline string) string {
 	tmp2 := string(b)
 	tmp2  = strings.TrimSuffix(tmp2, "\n")
 	log.Println("shell.Run() END   ", cmdline)
-	log.Println("shell.Run() calling callback() :")
-	callback(fmt.Errorf("no error"), 0)
+	log.Println("shell.Run() calling handleError() :")
+	handleError(nil, 0)
 	return Chomp(b)
 }
 
@@ -218,6 +220,7 @@ func NonBlockingReader(buffReader *bufio.Reader, writeFileHandle *os.File) {
 			count, err := nbr.Read(oneByte)
 			if (err != nil) {
 				log.Debug("count, err =", count, err)
+				handleError(err, -1)
 				return
 			}
 			totalCount += count
