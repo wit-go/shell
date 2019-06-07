@@ -7,6 +7,7 @@ package shell
 */
 
 import "log"
+import "fmt"
 import "reflect"
 import "strings"
 import "bytes"
@@ -67,7 +68,11 @@ func Chomp(a interface{}) string {
 			bytesSplice = tmp.Bytes()
 			return Chomp(string(bytesSplice))
 		default:
+			tmp := fmt.Sprint("shell.Chomp() NO HANDLER FOR TYPE: %T", a)
+			handleError(fmt.Errorf(tmp), -1)
 			log.Printf("shell.Chomp() NEED TO MAKE CONVERTER FOR type =", reflect.TypeOf(t))
 	}
+	tmp := "shell.Chomp() THIS SHOULD NEVER HAPPEN"
+	handleError(fmt.Errorf(tmp), -1)
 	return ""
 }
