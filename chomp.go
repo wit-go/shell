@@ -71,6 +71,9 @@ func Chomp(a interface{}) string {
 			log.Printf("shell.Chomp() FOUND *bytes.Buffer")
 			var tmp *bytes.Buffer
 			tmp = a.(*bytes.Buffer)
+			if (tmp == nil) {
+				return ""
+			}
 
 			var bytesSplice []byte
 			bytesSplice = tmp.Bytes()

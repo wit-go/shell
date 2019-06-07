@@ -44,8 +44,8 @@ func InitCallback(f func(interface{}, int)) {
 }
 
 // this means it won't copy all the output to STDOUT
-func Quiet() {
-	quiet = true
+func Quiet(q bool) {
+	quiet = q
 }
 
 func Script(cmds string) int {

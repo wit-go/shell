@@ -12,6 +12,8 @@ package shell
 
 import "io"
 import "os"
+import "fmt"
+import "log"
 import "bytes"
 import "strings"
 import "net/http"
@@ -31,6 +33,12 @@ func Wget(url string) (*bytes.Buffer) {
 		return nil
 	}
 	defer resp.Body.Close()
+
+	log.Printf("res.StatusCode: %d\n", resp.StatusCode)
+	if (resp.StatusCode == 404) {
+		handleError(fmt.Errorf("404"), -1)
+		return nil
+	}
 
 	buf.ReadFrom(resp.Body)
 	return buf
