@@ -22,13 +22,14 @@ var shellStdout *os.File
 var shellStderr *os.File
 
 var spewOn bool = false
+var quiet bool = false
 var msecDelay int = 20	// number of milliseconds to delay between reads with no data
 
 var bytesBuffer bytes.Buffer
 var bytesSplice []byte
 
 func handleError(c interface{}, ret int) {
-	log.Println("shell.Run() Returned", ret)
+	log.Debug("shell.Run() Returned", ret)
 	if (callback != nil) {
 		callback(c, ret)
 	}
@@ -40,6 +41,11 @@ func init() {
 
 func InitCallback(f func(interface{}, int)) {
 	callback = f
+}
+
+// this means it won't copy all the output to STDOUT
+func Quiet() {
+	quiet = true
 }
 
 func Script(cmds string) int {
@@ -140,8 +146,10 @@ func Run(cmdline string) string {
 				oneByte = make([]byte, 1024)
 				count, err = nbr.Read(oneByte)
 				log.Debug("STDOUT: count = ", count)
-				f.Write(oneByte[0:count])
-				f.Flush()
+				if (! quiet) {
+					f.Write(oneByte[0:count])
+					f.Flush()
+				}
 				empty = true
 				dead = true
 			}
@@ -151,8 +159,10 @@ func Run(cmdline string) string {
 			} else {
 				log.Debug("STDOUT: count = ", count)
 				io.WriteString(&bytesBuffer, string(oneByte))
-				f.Write(oneByte[0:count])
-				f.Flush()
+				if (! quiet) {
+					f.Write(oneByte[0:count])
+					f.Flush()
+				}
 			}
 		}
 
@@ -193,9 +203,8 @@ func Run(cmdline string) string {
 	// this removes the newlines at the end
 	tmp2 := string(b)
 	tmp2  = strings.TrimSuffix(tmp2, "\n")
-	log.Println("shell.Run() END   ", cmdline)
-	log.Println("shell.Run() calling handleError() :")
 	handleError(nil, 0)
+	log.Println("shell.Run() END   ", cmdline)
 	return Chomp(b)
 }
 
