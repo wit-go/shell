@@ -58,7 +58,15 @@ func WgetToFile(filepath string, url string) error {
 	return err
 }
 
+// write out a file. Always be nice and end with '\n'
+// if you are here and want to complain about ending in '\n'
+// then you probably aren't going to like lots of things in this
+// package. I will quote the evilwm man page:
+//
+// BUGS: The author's idea of friendly may differ to that of many other people.
+//
 func Write(filepath string, data string) bool {
+	data = Chomp(data) + "\n"
 	// Create the file
 	out, err := os.Create(filepath)
 	if err != nil {
