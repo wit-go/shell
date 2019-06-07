@@ -61,15 +61,11 @@ func Chomp(a interface{}) string {
 			return perlChomp(s)
 		case uint64:
 			log.Printf("shell.Chomp() FOUND []uint64")
-			var tmp uint64
-			tmp = a.(uint64)
-			s := string(tmp)
+			s := fmt.Sprintf("%d", a.(uint64))
 			return perlChomp(s)
 		case int64:
-			log.Printf("shell.Chomp() FOUND []uint64")
-			var tmp int64
-			tmp = a.(int64)
-			s := string(tmp)
+			log.Printf("shell.Chomp() FOUND []int64")
+			s := fmt.Sprintf("%d", a.(int64))
 			return perlChomp(s)
 		case *bytes.Buffer:
 			log.Printf("shell.Chomp() FOUND *bytes.Buffer")
