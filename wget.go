@@ -35,8 +35,8 @@ func Wget(url string) (*bytes.Buffer) {
 	defer resp.Body.Close()
 
 	log.Printf("res.StatusCode: %d\n", resp.StatusCode)
-	if (resp.StatusCode == 404) {
-		handleError(fmt.Errorf("404"), -1)
+	if (resp.StatusCode != 200) {
+		handleError(fmt.Errorf(fmt.Sprint("%d", resp.StatusCode)), -1)
 		return nil
 	}
 
