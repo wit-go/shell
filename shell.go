@@ -125,7 +125,7 @@ func Run(cmdline string) string {
 	nbr := nbreader.NewNBReader(newreader, 1024)
 
 	tmp := bufio.NewReader(pstderr)
-	go NonBlockingReader(tmp, shellStderr)
+	go nonBlockingReader(tmp, shellStderr, f)
 
 	totalCount := 0
 
@@ -146,7 +146,7 @@ func Run(cmdline string) string {
 				oneByte = make([]byte, 1024)
 				count, err = nbr.Read(oneByte)
 				log.Debug("STDOUT: count = ", count)
-				if (! quiet) {
+				if (quiet == false) {
 					f.Write(oneByte[0:count])
 					f.Flush()
 				}
@@ -159,7 +159,7 @@ func Run(cmdline string) string {
 			} else {
 				log.Debug("STDOUT: count = ", count)
 				io.WriteString(&bytesBuffer, string(oneByte))
-				if (! quiet) {
+				if (quiet == false) {
 					f.Write(oneByte[0:count])
 					f.Flush()
 				}
@@ -182,8 +182,6 @@ func Run(cmdline string) string {
 		// stuff := err.(*exec.ExitError)
 		log.Debug("ERROR ", err.Error())
 		log.Debug("END   ", cmdline)
-		// return -1, "", fmt.Errorf(err.Error())
-		// handleError(fmt.Errorf(err.Error()), -1)
 		handleError(err, -1)
 		return ""
 	}
@@ -216,7 +214,7 @@ func Daemon(cmdline string, timeout time.Duration) int {
 }
 
 // pass in two file handles (1 read, 1 write)
-func NonBlockingReader(buffReader *bufio.Reader, writeFileHandle *os.File) {
+func nonBlockingReader(buffReader *bufio.Reader, writeFileHandle *os.File, stdout *bufio.Writer) {
 	// newreader := bufio.NewReader(readFileHandle)
 
 	// create a nonblocking GO reader
@@ -245,6 +243,10 @@ func NonBlockingReader(buffReader *bufio.Reader, writeFileHandle *os.File) {
 			} else {
 				log.Debug("STDERR: count = ", count)
 				writeFileHandle.Write(oneByte[0:count])
+				if (quiet == false) {
+					stdout.Write(oneByte[0:count])
+					stdout.Flush()
+				}
 			}
 		}
 	}
