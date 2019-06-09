@@ -45,6 +45,8 @@ func Wget(url string) (*bytes.Buffer) {
 }
 
 func WgetToFile(filepath string, url string) error {
+	log.Println("WgetToFile() filepath =", filepath)
+	log.Println("WgetToFile() URL =", url)
 	// Get the data
 	resp, err := http.Get(url)
 	if err != nil {

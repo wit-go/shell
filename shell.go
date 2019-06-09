@@ -16,6 +16,9 @@ import "github.com/svent/go-nbreader"
 import log "github.com/sirupsen/logrus"
 // import "github.com/wercker/journalhook"
 
+// TODO: look at https://github.com/go-cmd/cmd/issues/20
+// use go-cmd instead here?
+
 var callback func(interface{}, int)
 
 var shellStdout *os.File
@@ -250,4 +253,20 @@ func nonBlockingReader(buffReader *bufio.Reader, writeFileHandle *os.File, stdou
 			}
 		}
 	}
+}
+
+// run something and never return from it
+// TODO: pass STDOUT, STDERR, STDIN correctly
+// TODO: figure out how to nohup the process and exit
+func Exec(cmdline string) {
+	log.Println("shell.Run() START " + cmdline)
+
+	cmd     := Chomp(cmdline) // this is like 'chomp' in perl
+	cmdArgs := strings.Fields(cmd)
+
+	process := exec.Command(cmdArgs[0], cmdArgs[1:len(cmdArgs)]...)
+	process.Start()
+	err := process.Wait()
+	log.Println("shell.Exec() err =", err)
+	os.Exit(0)
 }
