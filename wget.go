@@ -78,7 +78,7 @@ func WgetToFile(filepath string, url string) error {
 func Write(filepath string, data string) bool {
 	data = Chomp(data) + "\n"
 	// Create the file
-	out, err := os.Create(filepath)
+	out, err := os.Create(Path(filepath))
 	if err != nil {
 		return false
 	}
