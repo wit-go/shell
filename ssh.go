@@ -27,10 +27,11 @@ func SSH(hostname string, port int, username string, pass string) *ssh.Session {
 
 	keyfile := user.HomeDir + "/.ssh/id_ed25519"
 	if runtime.GOOS == "windows" {
-		if Exists("/cygwin") {
+		if Exists("/cygdrive") {
 			log.Println("On Windows, but running within cygwin")
 			keyfile = "/home/wit/.ssh/id_ed25519"
 		} else {
+			log.Println("On Windows: (but not cygwin)")
 			keyfile = user.HomeDir + "\\id_ed25519"
 		}
 	}
