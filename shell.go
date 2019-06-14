@@ -13,7 +13,9 @@ import "io"
 import "github.com/davecgh/go-spew/spew"
 import "github.com/svent/go-nbreader"
 
+// import "log"
 import log "github.com/sirupsen/logrus"
+// TODO this journalhook to be cross platform
 // import "github.com/wercker/journalhook"
 
 // TODO: look at https://github.com/go-cmd/cmd/issues/20
@@ -24,9 +26,9 @@ var callback func(interface{}, int)
 var shellStdout *os.File
 var shellStderr *os.File
 
-var spewOn bool = false
-var quiet bool = false
-var msecDelay int = 20	// number of milliseconds to delay between reads with no data
+var spewOn      bool = false
+var quiet       bool = false
+var msecDelay   int  = 20	// number of milliseconds to delay between reads with no data
 
 var bytesBuffer bytes.Buffer
 var bytesSplice []byte
