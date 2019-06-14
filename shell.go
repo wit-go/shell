@@ -15,8 +15,6 @@ import "github.com/svent/go-nbreader"
 
 // import "log"
 import log "github.com/sirupsen/logrus"
-// TODO this journalhook to be cross platform
-// import "github.com/wercker/journalhook"
 
 // TODO: look at https://github.com/go-cmd/cmd/issues/20
 // use go-cmd instead here?
@@ -65,12 +63,6 @@ func Script(cmds string) int {
 	}
 	return 0
 }
-
-/*
-func UseJournalctl() {
-	journalhook.Enable()
-}
-*/
 
 func SpewOn() {
 	spewOn = true
