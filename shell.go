@@ -255,10 +255,13 @@ func nonBlockingReader(buffReader *bufio.Reader, writeFileHandle *os.File, stdou
 func Exec(cmdline string) {
 	log.Println("shell.Run() START " + cmdline)
 
-	cmd     := Chomp(cmdline) // this is like 'chomp' in perl
-	cmdArgs := strings.Fields(cmd)
+	cmd            := Chomp(cmdline) // this is like 'chomp' in perl
+	cmdArgs        := strings.Fields(cmd)
 
-	process := exec.Command(cmdArgs[0], cmdArgs[1:len(cmdArgs)]...)
+	process        := exec.Command(cmdArgs[0], cmdArgs[1:len(cmdArgs)]...)
+	process.Stderr  = os.Stderr
+	process.Stdin   = os.Stdin
+	process.Stdout  = os.Stdout
 	process.Start()
 	err := process.Wait()
 	log.Println("shell.Exec() err =", err)
