@@ -272,3 +272,21 @@ func Exec(cmdline string) {
 	log.Println("shell.Exec() err =", err)
 	os.Exit(0)
 }
+
+// return true if the filename exists
+func Exists(filename string) bool {
+	_, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return true
+}
+
+// return true if the filename exists
+func Dir(dirname string) bool {
+	info, err := os.Stat(dirname)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return info.IsDir()
+}

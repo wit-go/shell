@@ -9,6 +9,7 @@ import "io/ioutil"
 import "path/filepath"
 import "strings"
 import "time"
+import "runtime"
 
 import "golang.org/x/crypto/ssh"
 import "github.com/tmc/scp"
@@ -24,7 +25,17 @@ func SSH(hostname string, port int, username string, pass string) *ssh.Session {
 
 	user, _ := user.Current()
 
-	publicKey, err := PublicKeyFile(user.HomeDir + "/.ssh/id_ed25519")
+	keyfile := user.HomeDir + "/.ssh/id_ed25519"
+	if runtime.GOOS == "windows" {
+		if Exists("/cygwin") {
+			log.Println("On Windows, but running within cygwin")
+			keyfile = "/home/wit/.ssh/id_ed25519"
+		} else {
+			keyfile = user.HomeDir + "\\id_ed25519"
+		}
+	}
+
+	publicKey, err := PublicKeyFile(keyfile)
 	if (err != nil) {
 		log.Println("PublicKeyFile() error =", err)
 	}
