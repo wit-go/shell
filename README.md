@@ -12,7 +12,7 @@ go get -v -t -u git.wit.com/jcarr/shell
 ```
 # License
 
-This is a GPL 3.0 Project.
+This is a LGPL 3.0 Project. Hopefully. golang has a lot of wierd reprocussions for the GPL/LGPL
 
 # Credits
 

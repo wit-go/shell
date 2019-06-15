@@ -8,7 +8,7 @@ import "os/exec"
 import "bufio"
 import "bytes"
 import "io"
-// import "io/ioutil"
+import "io/ioutil"
 
 import "github.com/davecgh/go-spew/spew"
 import "github.com/svent/go-nbreader"
@@ -268,20 +268,30 @@ func Exec(cmdline string) {
 	os.Exit(0)
 }
 
-// return true if the filename exists
+// return true if the filename exists (cross-platform)
 func Exists(filename string) bool {
-	_, err := os.Stat(filename)
+	_, err := os.Stat(Path(filename))
 	if os.IsNotExist(err) {
 		return false
 	}
 	return true
 }
 
-// return true if the filename exists
+// return true if the filename exists (cross-platform)
 func Dir(dirname string) bool {
-	info, err := os.Stat(dirname)
+	info, err := os.Stat(Path(dirname))
 	if os.IsNotExist(err) {
 		return false
 	}
 	return info.IsDir()
+}
+
+// Cat a file into a string
+func Cat(filename string) string {
+	buffer, err := ioutil.ReadFile(Path(filename))
+	// log.Println("buffer =", string(buffer))
+	if err != nil {
+		return ""
+	}
+	return Chomp(buffer)
 }
