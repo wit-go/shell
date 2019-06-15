@@ -1,5 +1,6 @@
 package shell
 
+import "log"
 import "runtime"
 import "strings"
 
