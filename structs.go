@@ -12,8 +12,11 @@ var readBufferSize int
 type File struct {
 	Name		string
 	BufferSize	int
-	FbytesBuffer	bytes.Buffer
+	Buffer		*bytes.Buffer
 	Fbytes		[]byte
+	TotalCount	int
+	Empty		bool
+	Dead		bool
 
 	Fio		io.ReadCloser		// := process.StdoutPipe()
 	Fbufio		*bufio.Reader		// := bufio.NewReader(pOUT)
