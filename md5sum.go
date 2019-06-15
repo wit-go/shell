@@ -32,6 +32,6 @@ func Md5sum(filename string) string {
 		log.Println("shell.Md5sum() hash =", hash)
 		return hash
 	}
-	log.Println("shell.Md5sum() failed")
+	log.Println("shell.Md5sum() failed err =", err.Error())
 	return ""
 }
