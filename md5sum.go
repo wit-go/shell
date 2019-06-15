@@ -25,6 +25,8 @@ func hash_file_md5(filePath string) (string, error) {
 
 // hash thyself:  hash_file_md5(os.Args[0])
 func Md5sum(filename string) string {
+	filename = Path(filename)
+	log.Println("shell.Md5sum() START filename =", filename)
 	hash, err := hash_file_md5(filename)
 	if err == nil {
 		log.Println("shell.Md5sum() hash =", hash)
