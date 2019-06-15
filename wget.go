@@ -76,9 +76,13 @@ func WgetToFile(filepath string, url string) error {
 // BUGS: The author's idea of friendly may differ to that of many other people.
 //
 func Write(filepath string, data string) bool {
+	// TODO: this isn't working for some reason and is making two '\n' chars
+	// probably because Chomp() isn't fixed yet
 	data = Chomp(data) + "\n"
 	// Create the file
-	out, err := os.Create(Path(filepath))
+	ospath := Path(filepath)
+	log.Println("shell.Write() START ospath =", ospath, "filepath =", filepath)
+	out, err := os.Create(ospath)
 	if err != nil {
 		return false
 	}
@@ -92,5 +96,6 @@ func Write(filepath string, data string) bool {
 		return false
 	}
 	handleError(nil, int(count))
+	log.Println("shell.Write() END", ospath)
 	return true
 }
