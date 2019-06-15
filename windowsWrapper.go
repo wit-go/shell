@@ -11,9 +11,12 @@ func Execname(filename string) string {
 }
 
 func Path(filename string) string {
+	log.Println("shell.Path() START filename =", filename)
 	if runtime.GOOS != "windows" {
+		log.Println("shell.Path() END filename =", filename)
 		return filename
 	}
 	filename = strings.Replace(filename, "/", "\\", -1)
+	log.Println("shell.Path() END filename =", filename)
 	return filename
 }
