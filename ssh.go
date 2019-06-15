@@ -1,40 +1,57 @@
 package shell
 
-import "bufio"
 import "log"
 import "fmt"
-import "os"
-import "os/user"
 import "io/ioutil"
-import "path/filepath"
-import "strings"
 import "time"
-import "runtime"
+
+// import "strings"
+// import "path/filepath"
+// import "os"
+// import "bufio"
+// import "os/user"
+// import "runtime"
 
 import "golang.org/x/crypto/ssh"
 import "github.com/tmc/scp"
 
-func SSH(hostname string, port int, username string, pass string) *ssh.Session {
-//	username := "jcarr"
-//	pass := "tryme"
-	// cmd  := "ps"
+var sshHostname string
+var sshPort	int
+var sshUsername	string
+var sshPassword	string
+var sshKeyfile	string
 
+func SSHclientSet(hostname string, port int, username string, pass string, keyfile string) {
+	sshHostname	= hostname
+	sshPort		= port
+	sshUsername	= username
+	sshPassword	= pass
+	sshKeyfile	= keyfile
+}
+
+func SSHclientSCP(localfile string, remotefile string) {
+	log.Println("shell.SSHclientSCP() START")
+	log.Println("shell.SSHclientSCP() \tlocalfile =", localfile)
+	log.Println("shell.SSHclientSCP() \tremotefile =", remotefile)
+	sess := SSH(sshHostname, sshPort, sshUsername, sshPassword, sshKeyfile)
+	err := scp.CopyPath(localfile, remotefile, sess)
+	sess.Close()
+	log.Println("shell.SSHclientSCP() \tscp.CopyPath() err =", err)
+	log.Println("shell.SSHclientSCP() END")
+}
+
+func SSHclientRun(cmd string) {
+	log.Println("shell.SSHclientRun() START cmd =", cmd)
+	sess := SSH(sshHostname, sshPort, sshUsername, sshPassword, sshKeyfile)
+	err := sess.Run(cmd)
+	sess.Close()
+	log.Println("shell.SSHclientRun() END err =", err)
+}
+
+func SSH(hostname string, port int, username string, pass string, keyfile string) *ssh.Session {
 	// get host public key
 	// hostKey := getHostKey(host)
 	// log.Println("hostkey =", hostKey)
-
-	user, _ := user.Current()
-
-	keyfile := user.HomeDir + "/.ssh/id_ed25519"
-	if runtime.GOOS == "windows" {
-		if Exists("/cygdrive") {
-			log.Println("On Windows, but running within cygwin")
-			keyfile = "/home/wit/.ssh/id_ed25519"
-		} else {
-			log.Println("On Windows: (but not cygwin)")
-			keyfile = user.HomeDir + "\\id_ed25519"
-		}
-	}
 
 	publicKey, err := PublicKeyFile(keyfile)
 	if (err != nil) {
@@ -80,6 +97,7 @@ func SSH(hostname string, port int, username string, pass string) *ssh.Session {
 		log.Fatal(err)
 	}
 	// defer sess.Close()
+
 	return sess
 }
 
@@ -88,6 +106,22 @@ func Scp(sess *ssh.Session, localfile string, remotefile string) {
 	log.Println("scp.CopyPath() err =", err)
 }
 
+func PublicKeyFile(file string) (ssh.AuthMethod, error) {
+	buffer, err := ioutil.ReadFile(file)
+	log.Println("buffer =", string(buffer))
+	if err != nil {
+		return nil, err
+	}
+
+	key, err := ssh.ParsePrivateKey(buffer)
+	if err != nil {
+		return nil, err
+	}
+	return ssh.PublicKeys(key), nil
+}
+
+// THIS doesn't work
+/*
 func getHostKey(host string) ssh.PublicKey {
 	// parse OpenSSH known_hosts file
 	// ssh or use ssh-keyscan to get initial key
@@ -125,17 +159,4 @@ func getHostKey(host string) ssh.PublicKey {
 
 	return hostKey
 }
-
-func PublicKeyFile(file string) (ssh.AuthMethod, error) {
-	buffer, err := ioutil.ReadFile(file)
-	log.Println("buffer =", string(buffer))
-	if err != nil {
-		return nil, err
-	}
-
-	key, err := ssh.ParsePrivateKey(buffer)
-	if err != nil {
-		return nil, err
-	}
-	return ssh.PublicKeys(key), nil
-}
+*/
