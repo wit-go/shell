@@ -1,16 +1,13 @@
 package shell
 
-import "fmt"
 import "strings"
 import "time"
 import "os"
 import "os/exec"
 import "bufio"
-import "bytes"
-import "io"
 import "io/ioutil"
 
-import "github.com/davecgh/go-spew/spew"
+// import "github.com/davecgh/go-spew/spew"
 import "github.com/svent/go-nbreader"
 
 // import "log"
@@ -26,10 +23,10 @@ var shellStderr *os.File
 
 var spewOn      bool = false
 var quiet       bool = false
-var msecDelay   int  = 20	// number of milliseconds to delay between reads with no data
+// var msecDelay   int  = 20	// number of milliseconds to delay between reads with no data
 
-var bytesBuffer bytes.Buffer
-var bytesSplice []byte
+// var bytesBuffer bytes.Buffer
+// var bytesSplice []byte
 
 func handleError(c interface{}, ret int) {
 	log.Debug("shell.Run() Returned", ret)
@@ -39,7 +36,7 @@ func handleError(c interface{}, ret int) {
 }
 
 func init() {
-	callback = nil
+	callback  = nil
 }
 
 func InitCallback(f func(interface{}, int)) {
@@ -80,9 +77,10 @@ func SetStderr(newerr *os.File) {
 	shellStderr = newerr
 }
 
+/*
 // NOTE: this might cause problems:
 // always remove the newlines at the end ?
-func Run(cmdline string) string {
+func OldRun(cmdline string) string {
 	log.Println("shell.Run() START " + cmdline)
 
 	cmd := Chomp(cmdline) // this is like 'chomp' in perl
@@ -202,6 +200,7 @@ func Run(cmdline string) string {
 	log.Println("shell.Run() END   ", cmdline)
 	return Chomp(b)
 }
+*/
 
 func Daemon(cmdline string, timeout time.Duration) int {
 	for {
