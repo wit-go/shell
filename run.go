@@ -179,6 +179,6 @@ func (cmd *Shell) ReadToBuffer(f *File) bool {
 	// log.Debugln("ReadToBuffer() count = ", count)
 	// tmp := Chomp(oneByte)
 	// log.Debugln("ReadToBuffer() tmp = ", tmp)
-	io.WriteString(cmd.Buffer, string(oneByte))
+	io.WriteString(cmd.Buffer, strings.Trim(string(oneByte), "\x00"))
 	return false
 }
