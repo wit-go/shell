@@ -10,22 +10,6 @@ var FileMap	map[string]*File
 
 var readBufferSize int
 
-/*
-type File struct {
-	Name		string
-	BufferSize	int
-	Buffer		*bytes.Buffer
-	Fbytes		[]byte
-	TotalCount	int
-	Empty		bool
-	Dead		bool
-
-	Fio		io.ReadCloser		// := process.StdoutPipe()
-	Fbufio		*bufio.Reader		// := bufio.NewReader(pOUT)
-	Fnbreader	*nbreader.NBReader	// := nbreader.NewNBReader(readOUT, 1024)
-}
-*/
-
 type File struct {
 	Name		string
 	// BufferSize	int
@@ -45,6 +29,7 @@ type Shell struct {
 	Process		*exec.Cmd
 	Done		bool
 	Quiet		bool
+	Fail		bool
 	Error		error
 	Buffer		*bytes.Buffer
 
@@ -57,19 +42,13 @@ type Shell struct {
 	Stderr		*File
 }
 
+// default values for Shell
 func New() *Shell {
 	var tmp Shell
+
+	tmp.Done = false
+	tmp.Fail = false
+	tmp.Quiet = quiet
+
 	return &tmp
 }
-
-/*
-func FileCreate(f io.ReadCloser) *File {
-	var newfile File
-
-	newfile.Fio = f
-	newfile.Fbufio = bufio.NewReader(f)
-	newfile.Fnbreader = nbreader.NewNBReader(newfile.Fbufio, 1024)
-
-	return &newfile
-}
-*/

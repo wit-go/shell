@@ -78,95 +78,6 @@ func SetStderr(newerr *os.File) {
 }
 
 /*
-// NOTE: this might cause problems:
-// always remove the newlines at the end ?
-func OldRun(cmdline string) string {
-	log.Println("shell.Run() START " + cmdline)
-
-	cmd := Chomp(cmdline) // this is like 'chomp' in perl
-	cmdArgs := strings.Fields(cmd)
-	if (len(cmdArgs) == 0) {
-		handleError(fmt.Errorf("cmdline == ''"), 0)
-		log.Debug("END   ", cmd)
-		return "" // nothing to do
-	}
-	if (cmdArgs[0] == "cd") {
-		if (len(cmdArgs) > 1) {
-			log.Println("os.Chdir()", cmd)
-			os.Chdir(cmdArgs[1])
-		}
-		handleError(nil, 0)
-		log.Debug("END   ", cmd)
-		return "" // nothing to do
-	}
-
-	process := exec.Command(cmdArgs[0], cmdArgs[1:len(cmdArgs)]...)
-	pstdout, _ := process.StdoutPipe()
-	pstderr, _ := process.StderrPipe()
-
-	if (spewOn) {
-		spew.Dump(pstdout)
-	}
-
-	process.Start()
-
-	if (shellStdout == nil) {
-		shellStdout = os.Stdout
-	}
-
-	f := bufio.NewWriter(shellStdout)
-
-	newreader := bufio.NewReader(pstdout)
-	nbr := nbreader.NewNBReader(newreader, 1024)
-
-	tmp := bufio.NewReader(pstderr)
-	go nonBlockingReader(tmp, shellStderr, f)
-
-	totalCount := 0
-
-	var dead bool = false
-	for (dead == false) {
-		time.Sleep(time.Duration(msecDelay) * time.Millisecond)   // only check the buffer 500 times a second
-		// log.Println("sleep done")
-
-		var empty bool = false
-		// tight loop that reads 1K at a time until buffer is empty
-		for (empty == false) {
-			oneByte := make([]byte, 1024)
-			count, err := nbr.Read(oneByte)
-			totalCount += count
-
-			if (err != nil) {
-				log.Debug("Read() count = ", count, "err = ", err)
-				oneByte = make([]byte, 1024)
-				count, err = nbr.Read(oneByte)
-				log.Debug("STDOUT: count = ", count)
-				if (quiet == false) {
-					f.Write(oneByte[0:count])
-					f.Flush()
-				}
-				empty = true
-				dead = true
-			}
-			// f.Write([]byte(string(oneByte)))
-			if (count == 0) {
-				empty = true
-			} else {
-				log.Debug("STDOUT: count = ", count)
-				io.WriteString(&bytesBuffer, string(oneByte))
-				if (quiet == false) {
-					f.Write(oneByte[0:count])
-					f.Flush()
-				}
-			}
-		}
-
-		if (totalCount != 0) {
-			log.Debug("STDOUT: totalCount = ", totalCount)
-			totalCount = 0
-		}
-	}
-
 	err := process.Wait()
 
 	if err != nil {
@@ -179,27 +90,6 @@ func OldRun(cmdline string) string {
 		log.Debug("END   ", cmdline)
 		handleError(err, -1)
 		return ""
-	}
-
-	// log.Println("shell.Run() END buf =", bytesBuffer)
-	// convert this to a byte array and then trip NULLs
-	// WTF this copies nulls with b.String() is fucking insanly stupid
-	byteSlice := bytesBuffer.Bytes()
-	b := bytes.Trim(byteSlice, "\x00")
-
-	log.Debug("shell.Run() END b =", b)
-
-	// reset the bytesBuffer
-	bytesBuffer.Reset()
-
-	// NOTE: this might cause problems:
-	// this removes the newlines at the end
-	tmp2 := string(b)
-	tmp2  = strings.TrimSuffix(tmp2, "\n")
-	handleError(nil, 0)
-	log.Println("shell.Run() END   ", cmdline)
-	return Chomp(b)
-}
 */
 
 func Daemon(cmdline string, timeout time.Duration) int {

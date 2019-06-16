@@ -8,7 +8,9 @@ import "io"
 import "fmt"
 import "os"
 import "bufio"
+
 import "github.com/svent/go-nbreader"
+// import "github.com/davecgh/go-spew/spew"
 
 import "log"
 // import "git.wit.com/wit/log"
@@ -110,6 +112,7 @@ func (cmd *Shell) Exec(cmdline string) {
 	// time.Sleep(2 * time.Second) // putting this here doesn't help STDOUT flush()
 
 	if (err != nil) {
+		cmd.Fail = true
 		cmd.Error = err
 		log.Println("process.Wait() END err =", err.Error())
 	} else {
@@ -118,6 +121,7 @@ func (cmd *Shell) Exec(cmdline string) {
 	return
 }
 
+// nonblocking read until file errors
 func (cmd *Shell) Capture(f *File) {
 	// log.Debugln("nbrREADER() START")
 
