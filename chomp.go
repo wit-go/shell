@@ -53,22 +53,22 @@ func Chomp(a interface{}) string {
 			s = a.(string)
 			return perlChomp(s)
 		case []uint8:
-			log.Printf("shell.Chomp() FOUND []uint8")
+			// log.Printf("shell.Chomp() FOUND []uint8")
 			var tmp []uint8
 			tmp = a.([]uint8)
 
 			s := string(tmp)
 			return perlChomp(s)
 		case uint64:
-			log.Printf("shell.Chomp() FOUND []uint64")
+			// log.Printf("shell.Chomp() FOUND []uint64")
 			s := fmt.Sprintf("%d", a.(uint64))
 			return perlChomp(s)
 		case int64:
-			log.Printf("shell.Chomp() FOUND []int64")
+			// log.Printf("shell.Chomp() FOUND []int64")
 			s := fmt.Sprintf("%d", a.(int64))
 			return perlChomp(s)
 		case *bytes.Buffer:
-			log.Printf("shell.Chomp() FOUND *bytes.Buffer")
+			// log.Printf("shell.Chomp() FOUND *bytes.Buffer")
 			var tmp *bytes.Buffer
 			tmp = a.(*bytes.Buffer)
 			if (tmp == nil) {
