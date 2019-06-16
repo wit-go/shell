@@ -10,7 +10,8 @@ import "os"
 import "bufio"
 import "github.com/svent/go-nbreader"
 
-import "git.wit.com/wit/log"
+import "log"
+// import "git.wit.com/wit/log"
 
 var msecDelay int = 20 // check every 20 milliseconds
 
@@ -118,14 +119,14 @@ func (cmd *Shell) Exec(cmdline string) {
 }
 
 func (cmd *Shell) Capture(f *File) {
-	log.Debugln("nbrREADER() START")
+	// log.Debugln("nbrREADER() START")
 
 	if (cmd.Buffer == nil) {
 		cmd.Buffer = new(bytes.Buffer)
 	}
 	if (cmd.Buffer == nil) {
-		log.Debugln("f.Buffer == nil")
-		log.Debugln("SHOULD DIE HERE")
+		// log.Debugln("f.Buffer == nil")
+		// log.Debugln("SHOULD DIE HERE")
 		f.Dead = false
 		cmd.Error = fmt.Errorf("could not make buffer")
 		cmd.Done = true
