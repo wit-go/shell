@@ -77,6 +77,14 @@ func SetStderr(newerr *os.File) {
 	shellStderr = newerr
 }
 
+func Unlink(filename string) {
+	os.Remove(Path(filename))
+}
+
+func RM(filename string) {
+	os.Remove(Path(filename))
+}
+
 /*
 	err := process.Wait()
 
