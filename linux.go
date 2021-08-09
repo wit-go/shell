@@ -13,7 +13,7 @@ import "syscall"
 // import "time"
 // import "reflect"
 
-// import "git.wit.com/wit/shell"
+// import "git.wit.org/wit/shell"
 // import "github.com/davecgh/go-spew/spew"
 
 import "github.com/wercker/journalhook"

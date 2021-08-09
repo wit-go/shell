@@ -13,7 +13,7 @@ import "github.com/svent/go-nbreader"
 // import "github.com/davecgh/go-spew/spew"
 
 import "log"
-// import "git.wit.com/wit/log"
+// import "git.wit.org/wit/log"
 
 var msecDelay int = 20 // check every 20 milliseconds
 

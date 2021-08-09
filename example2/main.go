@@ -2,7 +2,7 @@ package main
 
 import "log"
 import "fmt"
-import "git.wit.com/wit/shell"
+import "git.wit.org/wit/shell"
 
 func main() {
 	tmp, output, err := shell.Run("cat /etc/issue")
