@@ -1,3 +1,3 @@
 all:
-	go build
-	./example2
+	# go build
+	GO111MODULE="off" go run main.go
