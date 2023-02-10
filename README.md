@@ -8,12 +8,8 @@ non-blocking unbuffered way
 # install
 
 ```
-go get -v -t -u git.wit.com/jcarr/shell
+go get -v -t -u git.wit.org/wit/shell
 ```
 # License
 
-This is a LGPL 3.0 Project. Hopefully. golang has a lot of wierd reprocussions for the GPL/LGPL
-
-# Credits
-
-* The developers that made the golang (analabs) cross platform UI
+The same License as GO itself
