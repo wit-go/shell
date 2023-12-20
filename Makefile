@@ -16,14 +16,10 @@ update:
 	go get -v -t -u ./...
 
 # sync repo to the github backup
-# git remote add github git@github.com:wit-go/gui.git
+# git remote add github2 git@github.com:wit-go/shell.git
+# git branch -M master
 github:
 	git push origin master
 	git push origin --tags
-	git push github master
-	git push github --tags
-
-new-github:
-	-git remote add github2 git@github.com:wit-go/shell.git
-	git branch -M master
-	git push -u github2 master
+	git push github2 master
+	git push github2 --tags
