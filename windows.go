@@ -6,7 +6,7 @@ package shell
 
 import "log"
 
-// import "git.wit.org/wit/shell"
+// import "go.wit.com/shell"
 // import "github.com/davecgh/go-spew/spew"
 
 func handleSignal(err interface{}, ret int) {

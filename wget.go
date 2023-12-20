@@ -19,7 +19,7 @@ import "strings"
 import "net/http"
 
 /*
-import "git.wit.org/wit/shell"
+import "go.wit.com/shell"
 import "github.com/davecgh/go-spew/spew"
 */
 

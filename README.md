@@ -8,7 +8,7 @@ non-blocking unbuffered way
 # install
 
 ```
-go get -v -t -u git.wit.org/wit/shell
+go get -v -t -u go.wit.com/shell
 ```
 # License
 

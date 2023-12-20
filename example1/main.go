@@ -9,7 +9,7 @@ import "os"
 
 // import "github.com/davecgh/go-spew/spew"
 
-import "git.wit.org/wit/shell"
+import "go.wit.com/shell"
 
 func main() {
 	shell.Run("ls /tmp")
