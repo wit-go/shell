@@ -1,4 +1,4 @@
-package cloudflare
+package shell
 
 // initializes logging and command line options
 

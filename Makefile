@@ -10,6 +10,11 @@ push:
 	-git commit -a -s
 	git push
 
+redomod:
+	rm -f go.*
+	unset GO111MODULES && go mod init
+	unset GO111MODULES && go mod tidy
+
 # should update every go dependancy (?)
 update:
 	git pull
