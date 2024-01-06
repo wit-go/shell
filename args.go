@@ -7,6 +7,8 @@ import (
 )
 
 var INFO log.LogFlag
+var RUN log.LogFlag
+var SSH log.LogFlag
 
 func init() {
 	INFO.B = false
@@ -15,4 +17,18 @@ func init() {
 	INFO.Short = "shell"
 	INFO.Desc = "general info"
 	INFO.Register()
+
+	RUN.B = false
+	RUN.Name = "RUN"
+	RUN.Subsystem = "shell"
+	RUN.Short = "shell"
+	RUN.Desc = "Run() info"
+	RUN.Register()
+
+	SSH.B = false
+	SSH.Name = "SSH"
+	SSH.Subsystem = "shell"
+	SSH.Short = "shell"
+	SSH.Desc = "ssh() info"
+	SSH.Register()
 }

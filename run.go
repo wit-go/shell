@@ -1,19 +1,19 @@
 package shell
 
-import "strings"
-import "time"
-import "os/exec"
-import "bytes"
-import "io"
-import "fmt"
-import "os"
-import "bufio"
+import (
+	"strings"
+	"time"
+	"os/exec"
+	"bytes"
+	"io"
+	"fmt"
+	"os"
+	"bufio"
 
-import "github.com/svent/go-nbreader"
-// import "github.com/davecgh/go-spew/spew"
+	"github.com/svent/go-nbreader"
 
-import "log"
-// import "go.wit.com/log"
+	"go.wit.com/log"
+)
 
 var msecDelay int = 20 // check every 20 milliseconds
 
@@ -39,7 +39,7 @@ func (cmd *Shell) Run(cmdline string) string {
 }
 
 func (cmd *Shell) InitProcess(cmdline string) {
-	log.Println("shell.InitProcess() START " + cmdline)
+	log.Log(RUN, "shell.InitProcess() START " + cmdline)
 
 	cmd.Cmdline = Chomp(cmdline) // this is like 'chomp' in perl
 	cmdArgs := strings.Fields(cmd.Cmdline)
@@ -50,7 +50,7 @@ func (cmd *Shell) InitProcess(cmdline string) {
 	}
 	if (cmdArgs[0] == "cd") {
 		if (len(cmdArgs) > 1) {
-			log.Println("os.Chdir()", cmd)
+			log.Log(RUN, "os.Chdir()", cmd)
 			os.Chdir(cmdArgs[1])
 		}
 		handleError(nil, 0)
@@ -85,7 +85,7 @@ func (cmd *Shell) FileCreate(out string) {
 // NOTE: this might cause problems:
 // always remove the newlines at the end ?
 func (cmd *Shell) Exec(cmdline string) {
-	log.Println("shell.Run() START " + cmdline)
+	log.Log(RUN, "shell.Run() START " + cmdline)
 
 	cmd.InitProcess(cmdline)
 	if (cmd.Error != nil) {
@@ -114,25 +114,25 @@ func (cmd *Shell) Exec(cmdline string) {
 	if (err != nil) {
 		cmd.Fail = true
 		cmd.Error = err
-		log.Println("process.Wait() END err =", err.Error())
+		log.Log(RUN, "process.Wait() END err =", err.Error())
 	} else {
-		log.Println("process.Wait() END")
+		log.Log(RUN, "process.Wait() END")
 	}
 	return
 }
 
 // nonblocking read until file errors
 func (cmd *Shell) Capture(f *File) {
-	// log.Debugln("nbrREADER() START")
+	log.Log(RUN, "nbrREADER() START")
 
 	if (cmd.Buffer == nil) {
 		cmd.Buffer = new(bytes.Buffer)
 	}
 	if (cmd.Buffer == nil) {
-		// log.Debugln("f.Buffer == nil")
-		// log.Debugln("SHOULD DIE HERE")
 		f.Dead = false
 		cmd.Error = fmt.Errorf("could not make buffer")
+		log.Error(cmd.Error, "f.Buffer == nil")
+		log.Error(cmd.Error, "SHOULD DIE HERE")
 		cmd.Done = true
 	}
 
@@ -155,7 +155,7 @@ func (cmd *Shell) Capture(f *File) {
 
 // returns true  if filehandle buffer is empty
 func (cmd *Shell) ReadToBuffer(f *File) bool {
-	// log.Debugln("ReadToBuffer() START")
+	log.Log(RUN, "ReadToBuffer() START")
 	nbr := f.Fnbreader
 	oneByte := make([]byte, 1024)
 	if (nbr == nil) {

@@ -1,19 +1,14 @@
 package shell
 
-import "log"
-import "fmt"
-import "io/ioutil"
-import "time"
+import (
+	"fmt"
+	"io/ioutil"
+	"time"
 
-// import "strings"
-// import "path/filepath"
-// import "os"
-// import "bufio"
-// import "os/user"
-// import "runtime"
-
-import "golang.org/x/crypto/ssh"
-import "github.com/tmc/scp"
+	"golang.org/x/crypto/ssh"
+	"github.com/tmc/scp"
+	"go.wit.com/log"
+)
 
 var sshHostname string
 var sshPort	int
@@ -30,32 +25,32 @@ func SSHclientSet(hostname string, port int, username string, pass string, keyfi
 }
 
 func SSHclientSCP(localfile string, remotefile string) {
-	log.Println("shell.SSHclientSCP() START")
-	log.Println("shell.SSHclientSCP() \tlocalfile =", localfile)
-	log.Println("shell.SSHclientSCP() \tremotefile =", remotefile)
-	sess := SSH(sshHostname, sshPort, sshUsername, sshPassword, sshKeyfile)
+	log.Log(SSH, "shell.SSHclientSCP() START")
+	log.Log(SSH, "shell.SSHclientSCP() \tlocalfile =", localfile)
+	log.Log(SSH, "shell.SSHclientSCP() \tremotefile =", remotefile)
+	sess := mySsh(sshHostname, sshPort, sshUsername, sshPassword, sshKeyfile)
 	err := scp.CopyPath(localfile, remotefile, sess)
 	sess.Close()
-	log.Println("shell.SSHclientSCP() \tscp.CopyPath() err =", err)
-	log.Println("shell.SSHclientSCP() END")
+	log.Log(SSH, "shell.SSHclientSCP() \tscp.CopyPath() err =", err)
+	log.Log(SSH, "shell.SSHclientSCP() END")
 }
 
 func SSHclientRun(cmd string) {
-	log.Println("shell.SSHclientRun() START cmd =", cmd)
-	sess := SSH(sshHostname, sshPort, sshUsername, sshPassword, sshKeyfile)
+	log.Log(SSH, "shell.SSHclientRun() START cmd =", cmd)
+	sess := mySsh(sshHostname, sshPort, sshUsername, sshPassword, sshKeyfile)
 	err := sess.Run(cmd)
 	sess.Close()
-	log.Println("shell.SSHclientRun() END err =", err)
+	log.Log(SSH, "shell.SSHclientRun() END err =", err)
 }
 
-func SSH(hostname string, port int, username string, pass string, keyfile string) *ssh.Session {
+func mySsh(hostname string, port int, username string, pass string, keyfile string) *ssh.Session {
 	// get host public key
 	// hostKey := getHostKey(host)
-	// log.Println("hostkey =", hostKey)
+	// log.Log(SSH, "hostkey =", hostKey)
 
 	publicKey, err := PublicKeyFile(keyfile)
 	if (err != nil) {
-		log.Println("PublicKeyFile() error =", err)
+		log.Log(SSH, "PublicKeyFile() error =", err)
 	}
 
 	// ssh client config
@@ -87,14 +82,14 @@ func SSH(hostname string, port int, username string, pass string, keyfile string
 	// connect
 	client, err := ssh.Dial("tcp", hostname+":"+sport, &config)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
 	// defer client.Close()
 
 	// start session
 	sess, err := client.NewSession()
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
 	// defer sess.Close()
 
@@ -103,12 +98,12 @@ func SSH(hostname string, port int, username string, pass string, keyfile string
 
 func Scp(sess *ssh.Session, localfile string, remotefile string) {
 	err := scp.CopyPath(localfile, remotefile, sess)
-	log.Println("scp.CopyPath() err =", err)
+	log.Log(SSH, "scp.CopyPath() err =", err)
 }
 
 func PublicKeyFile(file string) (ssh.AuthMethod, error) {
 	buffer, err := ioutil.ReadFile(file)
-	log.Println("buffer =", string(buffer))
+	log.Log(SSH, "buffer =", string(buffer))
 	if err != nil {
 		return nil, err
 	}
@@ -150,10 +145,10 @@ func getHostKey(host string) ssh.PublicKey {
 
 	// 9enFJdMhb8eHN/6qfHSU/jww2Mo=|pcsWQCvAyve9QXBhjL+w/LhkcHU= ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBMQx8BJXxD+vk3wyjy7Irzw4FA6xxJvqUP7Hb+Z+ygpOuidYj9G8x6gHEXFUnABn5YirePrWh5tNsk4Rqs48VwU=
 	hostKey, _, _, _, err = ssh.ParseAuthorizedKey([]byte("9enFJdMhb8eHN/6qfHSU/jww2Mo=|pcsWQCvAyve9QXBhjL+w/LhkcHU= ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBMQx8BJXxD+vk3wyjy7Irzw4FA6xxJvqUP7Hb+Z+ygpOuidYj9G8x6gHEXFUnABn5YirePrWh5tNsk4Rqs48VwU="))
-	log.Println("hostkey err =", err)
-	log.Println("hostkey =", hostKey)
+	log.Log(SSH, "hostkey err =", err)
+	log.Log(SSH, "hostkey =", hostKey)
 	if hostKey == nil {
-		log.Println("no hostkey found err =", err)
+		log.Log(SSH, "no hostkey found err =", err)
 		log.Fatalf("no hostkey found for %s", host)
 	}
 
