@@ -1,17 +1,17 @@
 package shell
 
-import "strings"
-import "time"
-import "os"
-import "os/exec"
-import "bufio"
-import "io/ioutil"
+import (
+	"strings"
+	"time"
+	"os"
+	"os/exec"
+	"bufio"
+	"io/ioutil"
 
-// import "github.com/davecgh/go-spew/spew"
-import "github.com/svent/go-nbreader"
+	"go.wit.com/log"
+	"github.com/svent/go-nbreader"
+)
 
-// import "log"
-import log "github.com/sirupsen/logrus"
 
 // TODO: look at https://github.com/go-cmd/cmd/issues/20
 // use go-cmd instead here?
@@ -29,7 +29,7 @@ var quiet       bool = false
 // var bytesSplice []byte
 
 func handleError(c interface{}, ret int) {
-	log.Debug("shell.Run() Returned", ret)
+	log.Log(INFO, "shell.Run() Returned", ret)
 	if (callback != nil) {
 		callback(c, ret)
 	}
@@ -54,7 +54,7 @@ func Script(cmds string) int {
 
 	for _, line := range lines {
 		line = Chomp(line) // this is like 'chomp' in perl
-		log.Println("LINE:", line)
+		log.Log(INFO, "LINE:", line)
 		time.Sleep(1)
 		Run(line)
 	}
@@ -94,8 +94,8 @@ func RM(filename string) {
 			spew.Dump(process.ProcessState)
 		}
 		// stuff := err.(*exec.ExitError)
-		log.Debug("ERROR ", err.Error())
-		log.Debug("END   ", cmdline)
+		log.Log(INFO, "ERROR ", err.Error())
+		log.Log(INFO, "END   ", cmdline)
 		handleError(err, -1)
 		return ""
 */
@@ -123,7 +123,7 @@ func nonBlockingReader(buffReader *bufio.Reader, writeFileHandle *os.File, stdou
 			oneByte := make([]byte, 1024)
 			count, err := nbr.Read(oneByte)
 			if (err != nil) {
-				log.Debug("count, err =", count, err)
+				log.Log(INFO, "count, err =", count, err)
 				handleError(err, -1)
 				return
 			}
@@ -131,11 +131,11 @@ func nonBlockingReader(buffReader *bufio.Reader, writeFileHandle *os.File, stdou
 			if (count == 0) {
 				time.Sleep(time.Duration(msecDelay) * time.Millisecond)   // without this delay this will peg the CPU
 				if (totalCount != 0) {
-					log.Debug("STDERR: totalCount = ", totalCount)
+					log.Log(INFO, "STDERR: totalCount = ", totalCount)
 					totalCount = 0
 				}
 			} else {
-				log.Debug("STDERR: count = ", count)
+				log.Log(INFO, "STDERR: count = ", count)
 				writeFileHandle.Write(oneByte[0:count])
 				if (quiet == false) {
 					stdout.Write(oneByte[0:count])
@@ -150,7 +150,7 @@ func nonBlockingReader(buffReader *bufio.Reader, writeFileHandle *os.File, stdou
 // TODO: pass STDOUT, STDERR, STDIN correctly
 // TODO: figure out how to nohup the process and exit
 func Exec(cmdline string) {
-	log.Println("shell.Run() START " + cmdline)
+	log.Log(INFO, "shell.Run() START " + cmdline)
 
 	cmd            := Chomp(cmdline) // this is like 'chomp' in perl
 	cmdArgs        := strings.Fields(cmd)
@@ -161,7 +161,7 @@ func Exec(cmdline string) {
 	process.Stdout  = os.Stdout
 	process.Start()
 	err := process.Wait()
-	log.Println("shell.Exec() err =", err)
+	log.Log(INFO, "shell.Exec() err =", err)
 	os.Exit(0)
 }
 
@@ -186,7 +186,7 @@ func Dir(dirname string) bool {
 // Cat a file into a string
 func Cat(filename string) string {
 	buffer, err := ioutil.ReadFile(Path(filename))
-	// log.Println("buffer =", string(buffer))
+	// log.Log(INFO, "buffer =", string(buffer))
 	if err != nil {
 		return ""
 	}
