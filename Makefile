@@ -25,6 +25,8 @@ update:
 # git branch -M master
 github:
 	git push origin master
+	git push origin devel
 	git push origin --tags
-	git push github2 master
-	git push github2 --tags
+	git push github master
+	git push github devel
+	git push github --tags
